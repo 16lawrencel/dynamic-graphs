@@ -6,3 +6,4 @@ To compile, just use make.
 
 To clean (remove .o and main), use "make clean".
 
+I've included the expected dependencies in the source files.
