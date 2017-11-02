@@ -1,7 +1,5 @@
-dynamic-graphs
-Stuff we need to fix:
-If you try compiling dsu.cpp, you'll note that it doesn't compile.
-This is because I'm trying to declare everything as a pointer machine 
-class, and the pointer machine class contains a Node subclass.
-But I'm not sure how to access the Node subclass after inheriting 
-from the PM class.
+Each data structure has its own source file and its own header.
+ds.h is the "catch-all" header file (which just includes all the header files for the data structures).
+To compile, just use make.
+To clean (remove .o and main), use "make clean".
+
