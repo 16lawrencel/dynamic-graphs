@@ -21,7 +21,7 @@ long long SplayTree::size() {
 }
 
 void SplayTree::printInorder() {
-    std::cout << tree_root->size << '\n';
+    std::cout << SplayTree::size() << '\n';
     SplayTree::printInorder(tree_root);
     std::cout << '\n';
 }
