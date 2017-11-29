@@ -18,7 +18,6 @@ class Node {
 
 class SplayTree {
     public:
-        static Node * insert(int key);
         static void remove(Node * node);
         static Node * find(int key);
         static void rotate(Node * node);
@@ -31,8 +30,6 @@ class SplayTree {
     private:
         static void rotate_right(Node * node);
         static void rotate_left(Node * node);
-        static Node * predecessor(int key, Node * node);
-        static Node * successor(int key, Node * node);
 };
 
 #endif
