@@ -2,8 +2,8 @@
 // structure can support forest of trees
 // in particular, can have multiple roots
 #include "splayTree.h"
-#include <iostream>
 #include <cassert>
+#include <algorithm>
 
 #define ST SplayTree
 
@@ -18,8 +18,17 @@ void Node::push() {
 
 void Node::update() {
     size = 1;
-    if (left_child) size += left_child->size;
-    if (right_child) size += right_child->size;
+    max_num = num;
+
+    if (left_child) {
+        size += left_child->size;
+        max_num = std::max(max_num, left_child->max_num);
+    }
+
+    if (right_child) {
+        size += right_child->size;
+        max_num = std::max(max_num, right_child->max_num);
+    }
 }
 
 void ST::remove(Node * node) {
@@ -181,5 +190,28 @@ Node * ST::insert_back(Node * node) {
     node->update();
     splay(new_node);
     return new_node;
+}
+
+/*
+   Finds a node in node's tree with num > 0
+   If no such nodes exist, returns NULL
+*/
+Node * ST::find_positive_num(Node * node) {
+    splay(node);
+    if (node->max_num <= 0) return NULL;
+
+    while (node->num <= 0) {
+        Node * left_child = node->left_child;
+        Node * right_child = node->right_child;
+
+        if (left_child && left_child->max_num > 0)
+            node = left_child;
+        else if (right_child && right_child->max_num > 0)
+            node = right_child;
+        else assert(false);
+    }
+
+    splay(node);
+    return node;
 }
 

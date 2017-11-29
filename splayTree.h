@@ -11,6 +11,8 @@ class Node {
         int key;
         int value;
         int size;
+        int num; // number of adjacent nodes in graph for fully dynamic
+        int max_num; // max value of num in subtree
 
         void push(); // lazy propagation
         void update(); // update values, e.g. subtree size
@@ -26,6 +28,7 @@ class SplayTree {
         static void disown(Node * node);
         static Node * get_front(Node * node);
         static Node * insert_back(Node * node);
+        static Node * find_positive_num(Node * node);
 
     private:
         static void rotate_right(Node * node);

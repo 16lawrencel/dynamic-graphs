@@ -37,6 +37,10 @@ class EulerTourTree {
         void link(int x, int y);
         bool cut(int x, int y);
         bool conn(int x, int y);
+
+        int get_size(int x);
+        int get_positive_num(int x);
+        void update_num(int x, int d_num);
 };
 
 #endif

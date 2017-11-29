@@ -165,3 +165,26 @@ bool ETT::conn(int x, int y) {
     return (a->parent == b);
 }
 
+/*
+   Gets size of x's connected component
+*/
+int ETT::get_size(int x) {
+    Node * a = get_node(x);
+    ST::splay(a);
+    return a->size;
+}
+
+int ETT::get_positive_num(int x) {
+    Node * a = get_node(x);
+    Node * res = ST::find_positive_num(a);
+    if (!res) return -1;
+    return res->value;
+}
+
+void ETT::update_num(int x, int d_num) {
+    Node * a = get_node(x);
+    ST::splay(a);
+    a->num += d_num;
+    a->update();
+}
+
