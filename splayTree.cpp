@@ -1,328 +1,185 @@
+// generalized splay trees
+// structure can support forest of trees
+// in particular, can have multiple roots
 #include "splayTree.h"
 #include <iostream>
 #include <cassert>
 
-void SplayTree::splay(long long key) {
-    SplayTree::splay(key, tree_root);
-}
-void SplayTree::insert(long long key, long long value) {
-    SplayTree::insert(key, value, tree_root);
-}
-bool SplayTree::remove(long long key) {
-    return SplayTree::remove(key, tree_root);
-}
-long long SplayTree::find(long long key) {
-    return SplayTree::find(key, tree_root);
+#define ST SplayTree
+
+Node::Node() {
+    left_child = right_child = parent = NULL;
+    key = value = 0;
+    size = 1;
 }
 
-long long SplayTree::size() {
-    if(!tree_root) return 0;
-    return tree_root->size;
+void Node::push() {
 }
 
-void SplayTree::printInorder() {
-    std::cout << SplayTree::size() << '\n';
-    SplayTree::printInorder(tree_root);
-    std::cout << '\n';
+void Node::update() {
+    size = 1;
+    if (left_child) size += left_child->size;
+    if (right_child) size += right_child->size;
+}
+
+void ST::remove(Node * node) {
+    splay(node);
+
+    Node * left = node->left_child;
+    Node * right = node->right_child;
+
+    if (!left && !right) {}
+    else if (!left) {
+        disown(right);
+    } else if (!right) {
+        disown(left);
+    } else {
+        disown(left);
+        disown(right);
+
+        Node * x = get_front(right);
+        // x should be at root
+        assert(!x->parent);
+        assert(!x->left_child);
+        x->left_child = left;
+        x->update();
+    }
+
+    free(node);
 }
 
 /* RR(Y rotates to the right):
-    node                 lc
+    par                 node
    /  \                 /  \
-  lc   Z     ==>       X   node
+ node  Z     ==>       X   par
  / \                      /  \
 X   Y                    Y    Z
 */
-void SplayTree::rotate_right(SplayTree::Node* node) {
-    SplayTree::Node* nodeParent = node->parent;
-    SplayTree::Node* leftChild = node->left_child;
-    SplayTree::Node* rightOfLeft = leftChild->right_child;
+void ST::rotate_right(Node* node) {
+    Node * parent = node->parent;
+    Node * gparent = node->parent;
+    Node * right_child = node->right_child;
 
-    leftChild->parent = nodeParent;
-    if(nodeParent) {
-        // Node is not root
-        if(nodeParent->right_child == node) {
-            nodeParent->right_child = leftChild;
-        } else {
-            nodeParent->left_child = leftChild;
-        }
-    } else {
-        // leftChild is now root
-        tree_root = leftChild;
+    node->parent = gparent;
+    if (gparent) {
+        if (parent == gparent->left_child)
+            gparent->left_child = node;
+        else
+            gparent->right_child = node;
     }
 
-    node->left_child = rightOfLeft;
-    if (rightOfLeft) {
-        rightOfLeft->parent = node;
-    }
+    node->right_child = parent;
+    parent->parent = node;
 
-    leftChild->right_child = node;
-    node->parent = leftChild;
+    parent->left_child = right_child;
+    right_child->parent = parent;
 
-    // now fix the sizes
-    long long lcsize = leftChild->size;
-    leftChild->size = node->size;
-    node->size = node->size - lcsize;
-    if(rightOfLeft) {
-        node->size += rightOfLeft->size;
-    }
+    parent->update();
+    node->update();
 }
 
 /* LL(Y rotates to the left):
-        node                     rc
+        par                     node
        /  \                     /  \
-      X    rc         ==>     node  Z
+      X   node         ==>    par   Z
           /  \                /  \
          Y    Z              X    Y
 */
-void SplayTree::rotate_left(SplayTree::Node* node) {
-    SplayTree::Node* nodeParent = node->parent;
-    SplayTree::Node* rightChild = node->right_child;
-    SplayTree::Node* leftOfRight = rightChild->left_child;
+void ST::rotate_left(Node * node) {
+    Node * parent = node->parent;
+    Node * gparent = node->parent;
+    Node * left_child = node->left_child;
 
-    rightChild->parent = nodeParent;
-    if(nodeParent) {
-        if(nodeParent->right_child == node) {
-            nodeParent->right_child = rightChild;
-        } else {
-            nodeParent->left_child = rightChild;
-        }
-    } else {
-        tree_root = rightChild;
+    node->parent = gparent;
+    if (gparent) {
+        if (parent == gparent->left_child)
+            gparent->left_child = node;
+        else
+            gparent->right_child = node;
     }
 
-    node->right_child = leftOfRight;
-    if(leftOfRight) {
-        leftOfRight->parent = node;
-    }
+    node->left_child = parent;
+    parent->parent = node;
 
-    rightChild->left_child = node;
-    node->parent = rightChild;
+    parent->right_child = left_child;
+    left_child->parent = parent;
 
-    // now fix the sizes
-    long long rcsize = rightChild->size;
-    rightChild->size = node->size;
-    node->size = node->size - rcsize;
-    if(leftOfRight) {
-        node->size += leftOfRight->size;
-    }
+    parent->update();
+    node->update();
+}
+
+void ST::rotate(Node * node) {
+    Node * parent = node->parent;
+    if (!parent) return;
+    if (node == parent->left_child) rotate_right(node);
+    else rotate_left(node);
 }
 
 /*
     Splay a node given by the node pointer
 */
-void SplayTree::splay(SplayTree::Node* node, SplayTree::Node* root) {
-    if(!root || !node) return;
-    while(true) {
-        // We continue until node isn't root
-        if((node == root) || !(node->parent)) {
+void ST::splay(Node* node) {
+    if (!node) return;
+
+    // keep rotating up until node has no parent, i.e. node is root
+    while (node->parent) {
+        Node * parent = node->parent;
+        Node * gparent = parent->parent;
+
+        if (!gparent) { // Zig
+            rotate(node);
             break;
         }
-        SplayTree::Node* parentOfParent = node->parent->parent;
-        if(!parentOfParent) { // Zig
-            if(node == node->parent->left_child)
-                rotate_right(node->parent);
-            else
-                rotate_left(node->parent);
-            break;
-        }
-        if(node->parent == parentOfParent->left_child) {
-            if(node == node->parent->left_child) { // ZigZig
-                rotate_right(parentOfParent);
-                rotate_right(node->parent);
-            }
-            else { // ZigZag
-                rotate_left(node->parent);
-                rotate_right(parentOfParent);
-            }
-        } else { // Now parent is a right child
-            if(node == node->parent->right_child) { // ZigZig
-                rotate_left(parentOfParent);
-                rotate_left(node->parent);
-            }
-            else { // ZigZag
-                rotate_right(node->parent);
-                rotate_left(parentOfParent);
-            }
+
+        bool is_node_lc = (node == parent->left_child);
+        bool is_parent_lc = (parent == gparent->left_child);
+
+        if (is_node_lc == is_parent_lc) { // ZigZig
+            rotate(parent);
+            rotate(node);
+        } else { // ZigZag
+            rotate(node);
+            rotate(parent);
         }
     }
-    tree_root = node;
 }
 
 /*
-    Splay the predecessor (or successor, if this is smaller than all) of
-    this key if this key doesn't exist, else splay the key
+   Removes the connection between node and its parent.
+   node becomes a root after this.
 */
-void SplayTree::splay(long long key, SplayTree::Node* root) {
-    if(!root) return;
-    if(root->size == 0) return;
-    SplayTree::Node* pred = predecessor(key, root);
-    if(pred) {
-        splay(pred, root);
-    } else {
-        splay(successor(key, root), root);
-    }
-}
-/*
-    Given a key, find a node which has the largest key smaller than (or
-    equal to) key
-    Returns NULL if this key is smaller than everything on the tree
-*/
-SplayTree::Node* SplayTree::predecessor(long long key, SplayTree::Node* node) {
-    long long node_val = node->key;
-    if(node_val == key) {
-        return node;
-    } else {
-        if(key < node_val) {
-            if(node->left_child) {
-                return predecessor(key, node->left_child);
-            } else {
-                return NULL;
-            }
-        } else {
-            if(node->right_child) {
-                return predecessor(key, node->right_child);
-            } else {
-                // on this subtree, we have no key bigger than node
-                // So, node is the largest key smaller than key
-                return node;
-            }
-        }
-    }
-}
+void ST::disown(Node * node) {
+    Node * parent = node->parent;
+    if (!parent) return;
 
-
-/*
-    Given a key, find a node which has the smallest key larger (or equal
-    to) than key
-    Returns NULL if this key is larger than everything on the tree
-*/
-SplayTree::Node* SplayTree::successor(long long key, SplayTree::Node* node) {
-    long long node_val = node->key;
-    if(node_val == key) {
-        return node;
-    } else {
-        if(key < node_val) {
-            if(node->left_child) {
-                return successor(key, node->left_child);
-            } else {
-                // on this subtree, we have no key bigger than node
-                // So, node is the largest key smaller than key
-                return node;
-            }
-        } else {
-            if(node->right_child) {
-                return successor(key, node->right_child);
-            } else {
-                return NULL;
-            }
-        }
-    }
-}
-
-SplayTree::Node* SplayTree::insert(long long key, long long value, SplayTree::Node* root) {
-    if(!root) {
-        root = new Node();
-        root->left_child = root->right_child = root->parent = NULL;
-        root->key = key;
-        root->value = value;
-        root->size = 1;
-        tree_root = root;
-        return root;
-    } else {
-        SplayTree::Node* now = root;
-        while(now) {
-            if(now->key == key) {
-                // No multiset, only update
-                now->value = value;
-                splay(now, root);
-                return now;
-            } else {
-                if(key < now->key) {
-                    if(now->left_child) {
-                        now = now->left_child;
-                    } else {
-                        SplayTree::Node* new_node = new Node();
-                        new_node->left_child = new_node->right_child = NULL;
-                        new_node->parent = now;
-                        new_node->key = key;
-                        new_node->value = value;
-                        new_node->size = 1;
-                        now->left_child = new_node;
-                        now->size += 1;
-                        splay(new_node, root);
-                        return new_node;
-                    }
-                } else {
-                    if(now->right_child) {
-                        now = now->right_child;
-                    } else {
-                        SplayTree::Node* new_node = new Node();
-                        new_node->left_child = new_node->right_child = NULL;
-                        new_node->parent = now;
-                        new_node->key = key;
-                        new_node->value = value;
-                        new_node->size = 1;
-                        now->right_child = new_node;
-                        now->size += 1;
-                        splay(new_node, root);
-                        return new_node;
-                    }
-                }
-            }
-        }
-    }
-    assert(false && "Shouldn't reach here!");
-    return NULL;
-}
-
-void SplayTree::printInorder(SplayTree::Node* node) {
-    if(!node) return;
-    std::cout << "( ";
-    printInorder(node->left_child);
-    std::cout << " ) ( " << node->key << ',' << node->value << " ) ( ";
-    printInorder(node->right_child);
-    std::cout << " )";
+    if (node == parent->left_child) parent->left_child = NULL;
+    else parent->right_child = NULL;
+    node->parent = NULL;
+    parent->update();
 }
 
 /*
-    IMPORTANT: Returns null if the key is not found there.
+   Gets the first node in node's tree.
 */
-long long SplayTree::find(long long key, SplayTree::Node* node) {
-    SplayTree::Node* pred = SplayTree::predecessor(key, tree_root);
-    if(pred) {
-        if(pred->key == key)
-            return pred->value;
-    }
-    return NULL;
+Node * ST::get_front(Node * node) {
+    splay(node);
+    while (node->left_child) node = node->left_child;
+    splay(node);
+    return node;
 }
 
-bool SplayTree::remove(long long key, SplayTree::Node* node) {
-    SplayTree::Node* pred = SplayTree::predecessor(key, tree_root);
-    if(pred->key == key) {
-        SplayTree::splay(pred, tree_root);
-        if(!pred->left_child) {
-            tree_root = pred->right_child;
-            tree_root->parent = NULL;
-            free(pred);
-            return true;
-        } else {
-            SplayTree::Node* P = pred->left_child;
-            while(P->right_child)
-                P = P->right_child;
-            pred->left_child->parent = NULL;
-            SplayTree::splay(P, pred->left_child);
-            assert (P->right_child == NULL);
-            P->right_child = pred->right_child;
-            if(pred->right_child) {
-                P->size += pred->right_child->size;
-                pred->right_child->parent = P;
-            }
-            tree_root = P;
-            tree_root->parent = NULL;
-            free(pred);
-            return true;
-        }
-    }
-    return false;
+/*
+   Inserts a node to the back of node's tree
+*/
+Node * ST::insert_back(Node * node) {
+    splay(node);
+    while (node->right_child) node = node->right_child;
+
+    Node * new_node = new Node();
+    new_node->parent = node;
+    node->right_child = new_node;
+    node->update();
+    splay(new_node);
+    return new_node;
 }
+
