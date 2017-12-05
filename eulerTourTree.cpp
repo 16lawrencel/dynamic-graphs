@@ -1,13 +1,12 @@
-// actually stores a forest of euler tour trees
-// there can be multiple occurences of a node
-// node_map stores an arbitrary occurence
 #include "eulerTourTree.h"
 #include <cassert>
 
-#define ETT EulerTourTree
-#define ST SplayTree
+// actually stores a forest of euler tour trees
+// there can be multiple occurences of a node
+// node_map stores an arbitrary occurence
 
-Node * ETT::get_node(int x) {
+
+Node * EulerTourTree::get_node(int x) {
     auto it = node_map.find(x);
 
     // no set related to x
@@ -18,33 +17,33 @@ Node * ETT::get_node(int x) {
     return *st.begin();
 }
 
-Node * ETT::get_edge(int x, int y) {
+Node * EulerTourTree::get_edge(int x, int y) {
     std::pair<int, int> p = std::make_pair(x, y);
     auto it = edge_map.find(p);
     if (it == edge_map.end()) return NULL;
     return it->second;
 }
 
-void ETT::add(int x) {
+void EulerTourTree::add(int x) {
     Node * node = new Node();
     node->value = x;
     add_node(x, node);
 }
 
-void ETT::add_node(int x, Node * node) {
+void EulerTourTree::add_node(int x, Node * node) {
     node_map[x].insert(node);
 }
 
-void ETT::add_edge(int x, int y, Node * node) {
+void EulerTourTree::add_edge(int x, int y, Node * node) {
     std::pair<int, int> p = std::make_pair(x, y);
     edge_map[p] = node;
 }
 
-void ETT::remove_node(int x, Node * node) {
+void EulerTourTree::remove_node(int x, Node * node) {
     node_map[x].erase(node);
 }
 
-void ETT::remove_edge(int x, int y) {
+void EulerTourTree::remove_edge(int x, int y) {
     std::pair<int, int> p = std::make_pair(x, y);
     edge_map.erase(p);
 }
@@ -53,16 +52,16 @@ void ETT::remove_edge(int x, int y) {
    Performs a cyclic shift on the ordering of the tree
    that node is in such that node is in the front.
 */
-void ETT::shift_to_front(Node * node) {
-    ST::splay(node);
+void EulerTourTree::shift_to_front(Node * node) {
+    SplayTree::splay(node);
 
     // if no left child, node is already in front
     if (!node->left_child) return;
 
     Node * left_child = node->left_child;
-    ST::disown(left_child);
+    SplayTree::disown(left_child);
 
-    Node * front = ST::get_front(left_child);
+    Node * front = SplayTree::get_front(left_child);
     assert(!front->parent);
     assert(!front->left_child);
 
@@ -73,10 +72,10 @@ void ETT::shift_to_front(Node * node) {
     node->parent = front;
     front->update();
 
-    ST::splay(node);
+    SplayTree::splay(node);
 }
 
-void ETT::link(int x, int y) {
+void EulerTourTree::link(int x, int y) {
     if (conn(x, y)) return;
 
     Node * a = get_node(x);
@@ -89,8 +88,8 @@ void ETT::link(int x, int y) {
     shift_to_front(b);
 
     // insert additional nodes for linking
-    Node * a2 = ST::insert_back(a);
-    Node * b2 = ST::insert_back(b);
+    Node * a2 = SplayTree::insert_back(a);
+    Node * b2 = SplayTree::insert_back(b);
     a2->value = x;
     b2->value = y;
     add_node(x, a2);
@@ -98,10 +97,10 @@ void ETT::link(int x, int y) {
 
     // a2 should already be at top, but splay for lols
     // we link (a...a2)<->(b...b2)
-    ST::splay(a2);
+    SplayTree::splay(a2);
     assert(!a2->right_child);
 
-    ST::splay(b);
+    SplayTree::splay(b);
     a2->right_child = b;
     a2->update();
 
@@ -110,7 +109,7 @@ void ETT::link(int x, int y) {
     add_edge(y, x, b2);
 }
 
-bool ETT::cut(int x, int y) {
+bool EulerTourTree::cut(int x, int y) {
     Node * a = get_edge(x, y);
     if (!a) return false;
 
@@ -126,15 +125,15 @@ bool ETT::cut(int x, int y) {
     assert(!a->parent);
     assert(!a->left_child);
 
-    ST::splay(b);
+    SplayTree::splay(b);
     // guaranteed that a and b within distance 2
     // bad zig zig edge case, so have to rotate a as necessary
-    while (a->parent != b) ST::rotate(a);
+    while (a->parent != b) SplayTree::rotate(a);
 
     assert(b->left_child == a);
 
     // cut a from b
-    ST::disown(a);
+    SplayTree::disown(a);
 
     // remove a and b
     remove_node(x, a);
@@ -142,25 +141,25 @@ bool ETT::cut(int x, int y) {
     remove_edge(x, y);
     remove_edge(y, x);
 
-    ST::remove(a);
-    ST::remove(b);
+    SplayTree::remove(a);
+    SplayTree::remove(b);
 
     return true;
 }
 
-bool ETT::conn(int x, int y) {
+bool EulerTourTree::conn(int x, int y) {
     Node * a = get_node(x);
     Node * b = get_node(y);
     
     if (!a || !b) return false;
 
-    ST::splay(a);
-    ST::splay(b);
+    SplayTree::splay(a);
+    SplayTree::splay(b);
 
     // if a and b not connected, a will rotate to root
     // otherwise, a will rotate to be child of b
     while (a->parent && a->parent != b)
-        ST::rotate(a);
+        SplayTree::rotate(a);
 
     return (a->parent == b);
 }
@@ -168,22 +167,22 @@ bool ETT::conn(int x, int y) {
 /*
    Gets size of x's connected component
 */
-int ETT::get_size(int x) {
+int EulerTourTree::get_size(int x) {
     Node * a = get_node(x);
-    ST::splay(a);
+    SplayTree::splay(a);
     return a->size;
 }
 
-int ETT::get_positive_num(int x) {
+int EulerTourTree::get_positive_num(int x) {
     Node * a = get_node(x);
-    Node * res = ST::find_positive_num(a);
+    Node * res = SplayTree::find_positive_num(a);
     if (!res) return -1;
     return res->value;
 }
 
-void ETT::update_num(int x, int d_num) {
+void EulerTourTree::update_num(int x, int d_num) {
     Node * a = get_node(x);
-    ST::splay(a);
+    SplayTree::splay(a);
     a->num += d_num;
     a->update();
 }

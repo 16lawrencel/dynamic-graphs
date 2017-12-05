@@ -5,7 +5,6 @@
 #include <cassert>
 #include <algorithm>
 
-#define ST SplayTree
 
 Node::Node() {
     left_child = right_child = parent = NULL;
@@ -31,7 +30,7 @@ void Node::update() {
     }
 }
 
-void ST::remove(Node * node) {
+void SplayTree::remove(Node * node) {
     splay(node);
 
     Node * left = node->left_child;
@@ -64,7 +63,7 @@ void ST::remove(Node * node) {
  / \                      /  \
 X   Y                    Y    Z
 */
-void ST::rotate_right(Node* node) {
+void SplayTree::rotate_right(Node* node) {
     Node * parent = node->parent;
     Node * gparent = node->parent;
     Node * right_child = node->right_child;
@@ -94,7 +93,7 @@ void ST::rotate_right(Node* node) {
           /  \                /  \
          Y    Z              X    Y
 */
-void ST::rotate_left(Node * node) {
+void SplayTree::rotate_left(Node * node) {
     Node * parent = node->parent;
     Node * gparent = node->parent;
     Node * left_child = node->left_child;
@@ -117,7 +116,7 @@ void ST::rotate_left(Node * node) {
     node->update();
 }
 
-void ST::rotate(Node * node) {
+void SplayTree::rotate(Node * node) {
     Node * parent = node->parent;
     if (!parent) return;
     if (node == parent->left_child) rotate_right(node);
@@ -127,7 +126,7 @@ void ST::rotate(Node * node) {
 /*
     Splay a node given by the node pointer
 */
-void ST::splay(Node* node) {
+void SplayTree::splay(Node* node) {
     if (!node) return;
 
     // keep rotating up until node has no parent, i.e. node is root
@@ -157,7 +156,7 @@ void ST::splay(Node* node) {
    Removes the connection between node and its parent.
    node becomes a root after this.
 */
-void ST::disown(Node * node) {
+void SplayTree::disown(Node * node) {
     Node * parent = node->parent;
     if (!parent) return;
 
@@ -170,7 +169,7 @@ void ST::disown(Node * node) {
 /*
    Gets the first node in node's tree.
 */
-Node * ST::get_front(Node * node) {
+Node * SplayTree::get_front(Node * node) {
     splay(node);
     while (node->left_child) node = node->left_child;
     splay(node);
@@ -180,7 +179,7 @@ Node * ST::get_front(Node * node) {
 /*
    Inserts a node to the back of node's tree
 */
-Node * ST::insert_back(Node * node) {
+Node * SplayTree::insert_back(Node * node) {
     splay(node);
     while (node->right_child) node = node->right_child;
 
@@ -196,7 +195,7 @@ Node * ST::insert_back(Node * node) {
    Finds a node in node's tree with num > 0
    If no such nodes exist, returns NULL
 */
-Node * ST::find_positive_num(Node * node) {
+Node * SplayTree::find_positive_num(Node * node) {
     splay(node);
     if (node->max_num <= 0) return NULL;
 

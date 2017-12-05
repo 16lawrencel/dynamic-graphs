@@ -1,15 +1,14 @@
-// we implement levels in reverse
-// in particular, each edge starts at level 0, then 
-// increases in level
-// this is for ease of implementation (and to allow insertion of nodes)
 #include "fullDynamic.h"
 #include <algorithm>
 #include <cassert>
 
-#define FD FullDynamic
-#define ETT EulerTourTree
+// we implement levels in reverse
+// in particular, each edge starts at level 0, then 
+// increases in level
+// this is for ease of implementation (and to allow insertion of nodes)
 
-void FD::add(int x) {
+
+void FullDynamic::add(int x) {
     nodes.insert(x);
 
     int capacity = 1;
@@ -20,7 +19,7 @@ void FD::add(int x) {
     }
 }
 
-void FD::add_edge_level(int x, int y, int level) {
+void FullDynamic::add_edge_level(int x, int y, int level) {
     if (x > y) std::swap(x, y);
     edge_levels[std::make_pair(x, y)] = level;
 
@@ -31,7 +30,7 @@ void FD::add_edge_level(int x, int y, int level) {
     ett[level].update_num(y, 1);
 }
 
-void FD::remove_edge_level(int x, int y) {
+void FullDynamic::remove_edge_level(int x, int y) {
     if (x > y) std::swap(x, y);
     std::pair<int, int> p = std::make_pair(x, y);
     auto it = edge_levels.find(p);
@@ -47,7 +46,7 @@ void FD::remove_edge_level(int x, int y) {
     ett[level].update_num(y, -1);
 }
 
-int FD::get_edge_level(int x, int y) {
+int FullDynamic::get_edge_level(int x, int y) {
     if (x > y) std::swap(x, y);
     auto it = edge_levels.find(std::make_pair(x, y));
     if (it == edge_levels.end()) return -1;
@@ -57,7 +56,7 @@ int FD::get_edge_level(int x, int y) {
 /*
    Only allowed to link x and y if x and y already exist
 */
-void FD::link(int x, int y) {
+void FullDynamic::link(int x, int y) {
     if (!nodes.count(x) || !nodes.count(y)) return;
 
     add_edge_level(x, y, 0);
@@ -66,7 +65,7 @@ void FD::link(int x, int y) {
     }
 }
 
-void FD::cut(int x, int y) {
+void FullDynamic::cut(int x, int y) {
     int level = get_edge_level(x, y);
 
     // (x, y) doesn't exist
@@ -112,7 +111,7 @@ void FD::cut(int x, int y) {
     }
 }
 
-bool FD::conn(int x, int y) {
+bool FullDynamic::conn(int x, int y) {
     if (!nodes.count(x) || !nodes.count(y)) return false;
     return ett[0].conn(x, y);
 }
