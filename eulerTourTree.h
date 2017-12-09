@@ -17,7 +17,7 @@ class EulerTourTree {
                     auto h1 = std::hash<T1>{}(p.first);
                     auto h2 = std::hash<T2>{}(p.second);
 
-                    return int(1e9 + 7) * h1 + h2;
+                    return int(((long long)(1e9 + 7)) * h1 + h2);
                 }
         };
 
