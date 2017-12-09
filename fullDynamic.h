@@ -4,6 +4,7 @@
 #include "eulerTourTree.h"
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <set>
 #include <utility>
@@ -12,7 +13,7 @@ class FullDynamic {
     private:
         std::set<int> nodes;
         std::vector<EulerTourTree> ett;
-        std::vector<std::unordered_map<int, std::set<int> > > adj; // adjacency list
+        std::vector<std::unordered_map<int, std::unordered_set<int> > > adj; // adjacency list
 
         struct pair_hash {
             template <class T1, class T2>
@@ -26,7 +27,7 @@ class FullDynamic {
 
         std::unordered_map<std::pair<int, int>, int, pair_hash> edge_levels;
 
-        void add_edge_level(int x, int y, int level);
+        void add_edge_level(int x, int y, int level, bool ins_adj);
         void remove_edge_level(int x, int y);
         int get_edge_level(int x, int y);
 

@@ -6,28 +6,29 @@
 // in particular, each edge starts at level 0, then 
 // increases in level
 // this is for ease of implementation (and to allow insertion of nodes)
-
+// this is also what the original paper did
 
 void FullDynamic::add(int x) {
     nodes.insert(x);
 
     int capacity = 1;
-    for (int i = 0; i < nodes.size(); i++) capacity <<= 1;
+    for (int i = 0; i < ett.size(); i++) capacity <<= 1;
     if (capacity <= nodes.size()) {
         ett.push_back(EulerTourTree());
-        adj.push_back(std::unordered_map<int, std::set<int> >());
+        adj.push_back(std::unordered_map<int, std::unordered_set<int> >());
     }
 }
 
-void FullDynamic::add_edge_level(int x, int y, int level) {
+void FullDynamic::add_edge_level(int x, int y, int level, bool ins_adj) {
     if (x > y) std::swap(x, y);
     edge_levels[std::make_pair(x, y)] = level;
 
-    adj[level][x].insert(y);
-    adj[level][y].insert(x);
-
-    ett[level].update_num(x, 1);
-    ett[level].update_num(y, 1);
+    if (ins_adj) {
+        adj[level][x].insert(y);
+        adj[level][y].insert(x);
+        ett[level].update_num(x, 1);
+        ett[level].update_num(y, 1);
+    }
 }
 
 void FullDynamic::remove_edge_level(int x, int y) {
@@ -59,14 +60,15 @@ int FullDynamic::get_edge_level(int x, int y) {
 void FullDynamic::link(int x, int y) {
     if (!nodes.count(x) || !nodes.count(y)) return;
 
-    add_edge_level(x, y, 0);
     if (!ett[0].conn(x, y)) {
         ett[0].link(x, y);
-    }
+        add_edge_level(x, y, 0, false);
+    } else add_edge_level(x, y, 0, true);
 }
 
 void FullDynamic::cut(int x, int y) {
     int level = get_edge_level(x, y);
+    assert(level == 0);
 
     // (x, y) doesn't exist
     if (level == -1) return;
@@ -89,20 +91,29 @@ void FullDynamic::cut(int x, int y) {
         while (!found) {
             int a = ett[i].get_positive_num(x);
 
+            assert(a == -1);
+
             // looped through all such numbers
             if (a == -1) return;
 
-            while (!adj[i][a].empty()) {
-                int b = *adj[i][a].begin();
+            assert(!adj[i][a].empty());
 
+            std::vector<int> rem;
+
+            auto it = adj[i][a].begin();
+            for (; it != adj[i][a].end(); it++) {
+                int b = *it;
                 if (ett[i].conn(b, y)) {
                     for (int j = 0; j <= i; j++)
                         ett[j].link(a, b);
                     found = true;
+                    adj[i][a].erase(b);
+                    adj[i][b].erase(a);
                     break;
                 } else {
+                    rem.push_back(b);
                     remove_edge_level(a, b);
-                    add_edge_level(a, b, i + 1);
+                    add_edge_level(a, b, i + 1, true);
                 }
             }
         }
