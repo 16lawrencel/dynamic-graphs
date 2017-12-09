@@ -12,6 +12,16 @@ Node::Node() {
     size = 1;
 }
 
+void Node::print() {
+    int x = value;
+    int p = parent ? parent->value : 0;
+    int lc = left_child ? left_child->value : 0;
+    int rc = right_child ? right_child->value : 0;
+
+    printf("Node: %d; parent: %d; left child: %d; right child: %d\n", x, p, lc, rc);
+}
+
+
 void Node::push() {
 }
 
@@ -28,6 +38,14 @@ void Node::update() {
         size += right_child->size;
         max_num = std::max(max_num, right_child->max_num);
     }
+}
+
+void SplayTree::print(Node * node) {
+    if (!node) return;
+    //node->print();
+    print(node->left_child);
+    node->print();
+    print(node->right_child);
 }
 
 void SplayTree::remove(Node * node) {
@@ -52,8 +70,6 @@ void SplayTree::remove(Node * node) {
         x->left_child = left;
         x->update();
     }
-
-    free(node);
 }
 
 /* RR(Y rotates to the right):
@@ -65,7 +81,7 @@ X   Y                    Y    Z
 */
 void SplayTree::rotate_right(Node* node) {
     Node * parent = node->parent;
-    Node * gparent = node->parent;
+    Node * gparent = parent->parent;
     Node * right_child = node->right_child;
 
     node->parent = gparent;
@@ -80,7 +96,7 @@ void SplayTree::rotate_right(Node* node) {
     parent->parent = node;
 
     parent->left_child = right_child;
-    right_child->parent = parent;
+    if (right_child) right_child->parent = parent;
 
     parent->update();
     node->update();
@@ -95,7 +111,7 @@ void SplayTree::rotate_right(Node* node) {
 */
 void SplayTree::rotate_left(Node * node) {
     Node * parent = node->parent;
-    Node * gparent = node->parent;
+    Node * gparent = parent->parent;
     Node * left_child = node->left_child;
 
     node->parent = gparent;
@@ -110,7 +126,7 @@ void SplayTree::rotate_left(Node * node) {
     parent->parent = node;
 
     parent->right_child = left_child;
-    left_child->parent = parent;
+    if (left_child) left_child->parent = parent;
 
     parent->update();
     node->update();
@@ -147,7 +163,7 @@ void SplayTree::splay(Node* node) {
             rotate(node);
         } else { // ZigZag
             rotate(node);
-            rotate(parent);
+            rotate(node);
         }
     }
 }
@@ -166,6 +182,16 @@ void SplayTree::disown(Node * node) {
     parent->update();
 }
 
+Node * SplayTree::successor(Node * node) {
+    splay(node);
+    node = node->right_child;
+    if (!node) return NULL;
+    while (node->left_child) node = node->left_child;
+    splay(node);
+    return node;
+}
+
+
 /*
    Gets the first node in node's tree.
 */
@@ -176,10 +202,19 @@ Node * SplayTree::get_front(Node * node) {
     return node;
 }
 
+Node * SplayTree::get_back(Node * node) {
+    splay(node);
+    while (node->right_child) node = node->right_child;
+    splay(node);
+    return node;
+}
+
 /*
    Inserts a node to the back of node's tree
 */
 Node * SplayTree::insert_back(Node * node) {
+    if (!node) return new Node();
+
     splay(node);
     while (node->right_child) node = node->right_child;
 

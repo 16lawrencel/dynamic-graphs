@@ -16,6 +16,8 @@ class Node {
 
         void push(); // lazy propagation
         void update(); // update values, e.g. subtree size
+
+        void print();
 };
 
 class SplayTree {
@@ -26,9 +28,13 @@ class SplayTree {
         static void splay(Node * node);
 
         static void disown(Node * node);
+        static Node * successor(Node * node);
         static Node * get_front(Node * node);
+        static Node * get_back(Node * node);
         static Node * insert_back(Node * node);
         static Node * find_positive_num(Node * node);
+
+        static void print(Node * node);
 
     private:
         static void rotate_right(Node * node);

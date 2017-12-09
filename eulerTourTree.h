@@ -23,6 +23,8 @@ class EulerTourTree {
 
         std::unordered_map<std::pair<int, int>, Node*, pair_hash> edge_map;
 
+        std::unordered_map<int, int> num_map;
+
         Node * get_node(int x);
         Node * get_edge(int x, int y);
         void add_node(int x, Node * node);
@@ -33,7 +35,6 @@ class EulerTourTree {
         void shift_to_front(Node * node);
 
     public:
-        void add(int x);
         void link(int x, int y);
         bool cut(int x, int y);
         bool conn(int x, int y);
