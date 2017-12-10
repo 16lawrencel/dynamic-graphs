@@ -21,7 +21,7 @@ def add_edges_to_graph(graph, num_new_edges, verbose=False):
             a, b = random.randint(0, num_nodes - 1), random.randint(0, num_nodes - 1)
             if (a != b) and (a not in graph[b]):
                 if verbose:
-                    print(f'a {a} {b}')
+                    print(f'add {a} {b}')
                 graph.add_edge(a, b)
                 break
     return graph
@@ -35,7 +35,7 @@ def del_edges_from_graph(graph, num_del_edge, verbose=False):
             if len(edges) is not 0:
                 b = random.choice(edges)
                 if verbose:
-                    print(f'd {a} {b}')
+                    print(f'rem {a} {b}')
                 graph.remove_edge(a, b)
                 break
     return graph
@@ -79,13 +79,18 @@ if __name__ == '__main__':
     # Usage: simple_connectivity.py num_nodes num_edges
     assert(len(sys.argv) >= 3), 'Incorrect number of parameters!'
     num_nodes, num_edges = int(sys.argv[1]), int(sys.argv[2])
+    print(str(num_nodes) + '\n')
     test_graph = generate_test_graph(num_nodes, num_edges, True)
     add_del = min(100, num_edges // 10)
     for i in range(10):
         del_edges_from_graph(test_graph, add_del, True)
         for i in range(NUM_QUERY):
             a, b = random.randint(0, num_nodes - 1), random.randint(0, num_nodes - 1)
-            print(f'q {a} {b}')
+            print(f'conn {a} {b}')
             with open(f'answer_{num_nodes}_{num_edges}.txt', 'a') as f:
-                f.write(str(is_connected(test_graph, a, b)) + '\n')
+                conn = is_connected(test_graph, a, b)
+                if conn:
+                    f.write('YES\n')
+                else:
+                    f.write('NO\n')
         add_edges_to_graph(test_graph, add_del, True)
