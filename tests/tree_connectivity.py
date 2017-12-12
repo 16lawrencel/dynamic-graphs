@@ -88,7 +88,7 @@ if __name__ == '__main__':
         for i in range(NUM_QUERY):
             a, b = random.randint(0, num_nodes - 1), random.randint(0, num_nodes - 1)
             print(f'conn {a} {b}')
-            with open(f'answer_{num_nodes}_{num_edges}.txt', 'a') as f:
+            with open(f'tree_answer_{num_nodes}_{num_edges}.txt', 'a') as f:
                 conn = is_connected(test_graph, a, b)
                 if conn:
                     f.write('YES\n')
