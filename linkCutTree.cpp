@@ -7,7 +7,7 @@ bool LinkCutTree::d(int x) {
 }
 
 bool LinkCutTree::r(int x) {
-    return !p[x] || x != c[LinkCutTree::d(x)][p[x]];
+    return !p[x] || x != c[d(x)][p[x]];
 }
 
 void LinkCutTree::push(int x) {
@@ -21,58 +21,58 @@ void LinkCutTree::push(int x) {
 }
 
 void LinkCutTree::rot(int x) {
-    bool b = LinkCutTree::d(x);
+    bool b = d(x);
     int ch = c[!b][x], pa = p[x], gp = p[pa];
-    if (!LinkCutTree::r(pa)) c[LinkCutTree::d(pa)][gp] = x;
+    if (!r(pa)) c[d(pa)][gp] = x;
     c[!b][x] = pa, c[b][pa] = ch;
     p[ch] = pa, p[pa] = x, p[x] = gp;
 }
 
 void LinkCutTree::splay(int x) {
-    while (!LinkCutTree::r(x)) {
+    while (!r(x)) {
         int pa = p[x], gp = p[pa];
-        if (!LinkCutTree::r(pa)) LinkCutTree::push(gp); LinkCutTree::push(pa); LinkCutTree::push(x);
-        if (!LinkCutTree::r(pa)) {
-            if (LinkCutTree::d(x) == LinkCutTree::d(pa)) LinkCutTree::rot(pa);
-            else LinkCutTree::rot(x);
-        } LinkCutTree::rot(x);
+        if (!r(pa)) push(gp); push(pa); push(x);
+        if (!r(pa)) {
+            if (d(x) == d(pa)) rot(pa);
+            else rot(x);
+        } rot(x);
         std::cout << "Splay " << x << '\n';
         std::cout << "Parent " << p[x] << '\n';
-        if (p[x]) std::cout << "Child'o parent " << c[LinkCutTree::d(x)][p[x]];
-    } LinkCutTree::push(x);
+        if (p[x]) std::cout << "Child'o parent " << c[d(x)][p[x]];
+    } push(x);
 }
 
 void LinkCutTree::access(int x) {
     int y = x, last = 0;
     while (y) {
         std::cout << "access " << y << '\n';
-        LinkCutTree::splay(y);
+        splay(y);
         c[1][y] = last;
         last = y;
         y = p[y];
-    } LinkCutTree::splay(x);
+    } splay(x);
 }
 
 void LinkCutTree::reroot(int x) {
-    LinkCutTree::access(x);
+    access(x);
     f[x] ^= 1;
 }
 
 void LinkCutTree::link(int a, int b) {
-    LinkCutTree::reroot(a);
+    reroot(a);
     p[a] = b;
 }
 
 void LinkCutTree::cut(int a, int b) {
-    LinkCutTree::reroot(a);
-    LinkCutTree::access(b);
-    LinkCutTree::splay(a);
+    reroot(a);
+    access(b);
+    splay(a);
     c[1][a] = 0;
     p[b] = 0;
 }
 
 bool LinkCutTree::conn(int a, int b) {
-    LinkCutTree::reroot(a);
-    LinkCutTree::access(b);
+    reroot(a);
+    access(b);
     return p[a];
 }

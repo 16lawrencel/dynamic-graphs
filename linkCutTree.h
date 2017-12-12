@@ -19,10 +19,10 @@ class LinkCutTree {
 
         LinkCutTree(int N) {
             size = N;
-            f.resize(N + 10);
-            c[0].resize(N + 10);
-            c[1].resize(N + 10);
-            p.resize(N + 10);
+            f.resize(N + 10, 0);
+            c[0].resize(N + 10, 0);
+            c[1].resize(N + 10, 0);
+            p.resize(N + 10, 0);
         }
         // void add(int x);
         void link(int x, int y);
