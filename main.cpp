@@ -24,7 +24,7 @@ void testSplayTree() {
 }
 
 
-void testFullDynamic(int size) {
+long long testFullDynamic(int size) {
     std::string sz = std::to_string(size);
     std::string infile = "tests/tree_tests/tree_" + sz +".txt";
     std::string outfile = "tests/tree_tests/tree_answer_2_" + sz +".txt";
@@ -70,8 +70,9 @@ void testFullDynamic(int size) {
         }
     }
     auto t2 = std::chrono::high_resolution_clock::now();
+    long long runtime = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
     std::cout << "FullDynamic took "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()
+              << runtime
               << " milliseconds\n";
 
     for(auto res: results) {
@@ -81,9 +82,10 @@ void testFullDynamic(int size) {
             ofs << "NO\n";
         }
     }
+    return runtime;
 }
 
-void testETT(int size) {
+long long testETT(int size) {
     std::string sz = std::to_string(size);
     std::string infile = "tests/tree_tests/tree_" + sz +".txt";
     std::string outfile = "tests/tree_tests/tree_answer_3_" + sz +".txt";
@@ -129,8 +131,9 @@ void testETT(int size) {
         }
     }
     auto t2 = std::chrono::high_resolution_clock::now();
+    long long runtime = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
     std::cout << "ETT took "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()
+              << runtime
               << " milliseconds\n";
 
     for(auto res: results) {
@@ -140,17 +143,91 @@ void testETT(int size) {
             ofs << "NO\n";
         }
     }
+    return runtime;
 }
 
-void testAll(int size) {
+long long testLCT(int size) {
+    std::string sz = std::to_string(size);
+    std::string infile = "tests/tree_tests/tree_" + sz +".txt";
+    std::string outfile = "tests/tree_tests/tree_answer_4_" + sz +".txt";
+    std::ifstream ifs(infile, std::ifstream::in);
+    std::ofstream ofs(outfile, std::ofstream::out);
+    int N;
+    ifs >> N;
+    std::string cmd;
+    std::vector<int> commands;
+    std::vector<bool> results;
+    int a, b;
+    while(ifs >> cmd >> a >> b) {
+        if(cmd == "add") {
+            commands.push_back(0);
+            commands.push_back(a);
+            commands.push_back(b);
+        } else if(cmd == "rem") {
+            commands.push_back(1);
+            commands.push_back(a);
+            commands.push_back(b);
+        } else if(cmd == "conn") {
+            commands.push_back(2);
+            commands.push_back(a);
+            commands.push_back(b);
+
+        }
+    }
+    auto t1 = std::chrono::high_resolution_clock::now();
+    LinkCutTree graph = LinkCutTree(N);
+    // for(int i = 0; i < N; i++) {
+    //     graph.add(i);
+    // }
+    for(int i = 0; i < commands.size(); i += 3){
+        int c = commands[i];
+        int a = commands[i+1];
+        int b = commands[i+2];
+        if(c == 0) {
+            std::cout << "link " << a << ' ' << b;
+            graph.link(a, b);
+        }
+        else if(c == 1) {
+            std::cout << "cut " << a << ' ' << b;
+            graph.cut(a, b);
+        }
+        else if(c == 2) {
+            std::cout << "conn " << a << ' ' << b;
+            results.push_back(graph.conn(a, b));
+        }
+    }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    long long runtime = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+    std::cout << "LCT took "
+              << runtime
+              << " milliseconds\n";
+
+    for(auto res: results) {
+        if(res) {
+            ofs << "YES\n";
+        } else {
+            ofs << "NO\n";
+        }
+    }
+    return runtime;
+}
+
+std::pair<double, double> testAll(int size) {
     testUnionFind();
     testSplayTree();
-    testFullDynamic(size);
-    testETT(size);
-    std::cout << "All tests passed!" << std::endl;
+    long long fd = testFullDynamic(size);
+    long long ett = testETT(size);
+    long long lct = testLCT(size);
+    // std::cout << "All tests passed!" << std::endl;
+    return std::pair<long long, long long>(fd, ett);
 }
 
 int main() {
-    testAll(100);
+    std::ofstream timeout("time.txt", std::ofstream::out);
+    int tests[] = {100, 1000, 10000, 100000, 1000000, 5000000};
+    for(int testSize: tests) {
+        std::pair<long long, long long> results = testAll(testSize);
+        timeout<< results.first << ',' << results.second << '\n';
+    }
     return 0;
 }
