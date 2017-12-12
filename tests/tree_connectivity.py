@@ -19,7 +19,7 @@ def add_edges_to_graph(graph, num_new_edges, verbose=False):
     for i in range(num_new_edges):
         while True:
             a, b = random.randint(0, num_nodes - 1), random.randint(0, num_nodes - 1)
-            if (a != b) and (a not in graph[b]) and (not is_connected(graph, a, b)):
+            if (a != b) and (not is_connected(graph, a, b)):
                 if verbose:
                     print(f'add {a} {b}')
                 graph.add_edge(a, b)
@@ -53,25 +53,28 @@ def is_connected(graph, a, b):
     a_seen = set([a])
     b_list = deque([b])
     b_seen = set([b])
-    vis = set()
+    vis_a = set()
+    vis_b = set()
     while len(a_list) > 0 and len(b_list) > 0:
         a_left = a_list.popleft()
-        if a_left in vis:
+        if a_left in vis_a:
             continue
+        else:
+            vis_a.add(a_left)
         if len(b_seen.intersection(graph.adj[a_left])):
             return True
         a_list.extend(graph.adj[a_left])
         a_seen.update(graph.adj[a_left])
-        vis.add(a_left)
 
         b_left = b_list.popleft()
-        if b_left in vis:
+        if b_left in vis_b:
             continue
+        else:
+            vis_b.add(b_left)
         if len(a_seen.intersection(graph.adj[b_left])):
             return True
         b_list.extend(graph.adj[b_left])
         b_seen.update(graph.adj[b_left])
-        vis.add(b_left)
 
     return False
 

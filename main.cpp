@@ -6,6 +6,7 @@
 #include <vector>
 #include <chrono>
 
+typedef unsigned int uint;
 //simple test for union find
 
 void testUnionFind() {
@@ -57,7 +58,7 @@ long long testFullDynamic(int size) {
     for(int i = 0; i < N; i++) {
         graph.add(i);
     }
-    for(int i = 0; i < commands.size(); i += 3){
+    for(uint i = 0; i < commands.size(); i += 3){
         int c = commands[i];
         int a = commands[i+1];
         int b = commands[i+2];
@@ -118,7 +119,7 @@ long long testETT(int size) {
     // for(int i = 0; i < N; i++) {
     //     graph.add(i);
     // }
-    for(int i = 0; i < commands.size(); i += 3){
+    for(uint i = 0; i < commands.size(); i += 3){
         int c = commands[i];
         int a = commands[i+1];
         int b = commands[i+2];
@@ -179,20 +180,20 @@ long long testLCT(int size) {
     // for(int i = 0; i < N; i++) {
     //     graph.add(i);
     // }
-    for(int i = 0; i < commands.size(); i += 3){
+    for(uint i = 0; i < commands.size(); i += 3){
         int c = commands[i];
-        int a = commands[i+1];
-        int b = commands[i+2];
+        int a = commands[i+1] + 1;
+        int b = commands[i+2] + 1;
         if(c == 0) {
-            std::cout << "link " << a << ' ' << b;
+            // std::cout << "link " << a << ' ' << b;
             graph.link(a, b);
         }
         else if(c == 1) {
-            std::cout << "cut " << a << ' ' << b;
+            // std::cout << "cut " << a << ' ' << b;
             graph.cut(a, b);
         }
         else if(c == 2) {
-            std::cout << "conn " << a << ' ' << b;
+            // std::cout << "conn " << a << ' ' << b;
             results.push_back(graph.conn(a, b));
         }
     }

@@ -1,6 +1,7 @@
 #include "linkCutTree.h"
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 
 bool LinkCutTree::d(int x) {
     return x == c[1][p[x]];
@@ -36,16 +37,12 @@ void LinkCutTree::splay(int x) {
             if (d(x) == d(pa)) rot(pa);
             else rot(x);
         } rot(x);
-        std::cout << "Splay " << x << '\n';
-        std::cout << "Parent " << p[x] << '\n';
-        if (p[x]) std::cout << "Child'o parent " << c[d(x)][p[x]];
     } push(x);
 }
 
 void LinkCutTree::access(int x) {
     int y = x, last = 0;
     while (y) {
-        std::cout << "access " << y << '\n';
         splay(y);
         c[1][y] = last;
         last = y;
@@ -59,11 +56,13 @@ void LinkCutTree::reroot(int x) {
 }
 
 void LinkCutTree::link(int a, int b) {
+    assert(!conn(a, b));
     reroot(a);
     p[a] = b;
 }
 
 void LinkCutTree::cut(int a, int b) {
+    assert(conn(a, b));
     reroot(a);
     access(b);
     splay(a);
