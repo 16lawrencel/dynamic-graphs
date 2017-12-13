@@ -25,10 +25,11 @@ void testSplayTree() {
 }
 
 
-std::pair<double, double> testFullDynamic(int size) {
-    std::string sz = std::to_string(size);
-    std::string infile = "tests/tree_tests/tree_" + sz +".txt";
-    std::string outfile = "tests/tree_tests/tree_answer_2_" + sz +".txt";
+std::pair<double, double> testFullDynamic(int node_size, int edge_size) {
+    std::string n_sz = std::to_string(node_size);
+    std::string e_sz = std::to_string(edge_size);
+    std::string infile = "tests/graph_tests/graph_" + n_sz + "_" + e_sz +".txt";
+    std::string outfile = "tests/graph_tests/graph_answer_2_" + n_sz + "_" + e_sz + ".txt";
     std::ifstream ifs(infile, std::ifstream::in);
     std::ofstream ofs(outfile, std::ofstream::out);
     int N;
@@ -272,27 +273,28 @@ std::pair<double, double> testLCT(int size) {
     return std::pair<double, double> (updateTime / (updateNum * 1.0), queryTime / (queryNum * 1.0));;
 }
 
-std::vector<std::pair<double, double>> testAll(int size) {
+std::vector<std::pair<double, double>> testAll(int node_size, int edge_size) {
     testUnionFind();
     testSplayTree();
-    std::pair<double, double> fd = testFullDynamic(size);
-    std::pair<double, double> ett = testETT(size);
-    std::pair<double, double> lct = testLCT(size);
+    std::pair<double, double> fd = testFullDynamic(node_size, edge_size);
+    // std::pair<double, double> ett = testETT(size);
+    // std::pair<double, double> lct = testLCT(size);
     // std::cout << "All tests passed!" << std::endl;
-    std::vector<std::pair<double, double>> ret = {fd, ett, lct};
+    std::vector<std::pair<double, double>> ret = {fd};
     return ret;
 }
 
 int main() {
     std::string S;
-    std::cin >> S;
-    std::ofstream timeout("time_all_" + S +".txt", std::ofstream::out);
+    // std::cin >> S;
+    int node_size, edge_size;
+    std::ofstream timeout("time_fd.txt", std::ofstream::out);
     int tests[] = {100, 1000, 10000, 100000, 1000000, 5000000};
-    for(int testSize: tests) {
-        std::vector<std::pair<double, double>> results = testAll(testSize);
+    while(std::cin >> node_size >> edge_size) {
+        std::vector<std::pair<double, double>> results = testAll(node_size, edge_size);
         for(std::pair<double, double> result: results)
             timeout<< result.first << ',' << result.second << ',';
-        timeout << testSize << '\n';
+        timeout << node_size << ',' << edge_size << '\n';
     }
     return 0;
 }

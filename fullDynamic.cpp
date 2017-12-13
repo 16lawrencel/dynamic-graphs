@@ -3,7 +3,7 @@
 #include <cassert>
 
 // we implement levels in reverse
-// in particular, each edge starts at level 0, then 
+// in particular, each edge starts at level 0, then
 // increases in level
 // this is for ease of implementation (and to allow insertion of nodes)
 // this is also what the original paper did
@@ -11,8 +11,8 @@
 void FullDynamic::add(int x) {
     nodes.insert(x);
 
-    int capacity = 1;
-    for (int i = 0; i < ett.size(); i++) capacity <<= 1;
+    unsigned int capacity = 1;
+    for (unsigned int i = 0; i < ett.size(); i++) capacity <<= 1;
     if (capacity <= nodes.size()) {
         ett.push_back(EulerTourTree());
         adj.push_back(std::unordered_map<int, std::unordered_set<int> >());
@@ -68,7 +68,7 @@ void FullDynamic::link(int x, int y) {
 
 void FullDynamic::cut(int x, int y) {
     int level = get_edge_level(x, y);
-    assert(level == 0);
+    // assert(level == 0);
 
     // (x, y) doesn't exist
     if (level == -1) return;
@@ -91,7 +91,7 @@ void FullDynamic::cut(int x, int y) {
         while (!found) {
             int a = ett[i].get_positive_num(x);
 
-            assert(a == -1);
+            // assert(a == -1);
 
             // looped through all such numbers
             if (a == -1) return;
@@ -126,4 +126,3 @@ bool FullDynamic::conn(int x, int y) {
     if (!nodes.count(x) || !nodes.count(y)) return false;
     return ett[0].conn(x, y);
 }
-
