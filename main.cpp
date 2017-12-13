@@ -70,7 +70,7 @@ std::pair<double, double> testFullDynamic(int size) {
             graph.link(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
             if(flag) {
-                updateTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+                updateTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
                 updateNum ++;
             }
         }
@@ -79,24 +79,24 @@ std::pair<double, double> testFullDynamic(int size) {
             auto t1 = std::chrono::high_resolution_clock::now();
             graph.cut(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
-            updateTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+            updateTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             updateNum ++;
         }
         else if(c == 2) {
             flag = true;
             auto t1 = std::chrono::high_resolution_clock::now();
-            bool connected = graph.conn(a, b)
+            bool connected = graph.conn(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
             results.push_back(connected);
-            queryTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+            queryTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             queryNum ++;
         }
     }
     auto T2 = std::chrono::high_resolution_clock::now();
-    long long runtime = std::chrono::duration_cast<std::chrono::milliseconds>(T2-T1).count();
+    long long runtime = std::chrono::duration_cast<std::chrono::nanoseconds>(T2-T1).count();
     std::cout << "FullDynamic took "
               << runtime
-              << " milliseconds\n";
+              << " nanoseconds\n";
 
     for(auto res: results) {
         if(res) {
@@ -150,7 +150,7 @@ std::pair<double, double> testETT(int size) {
             graph.link(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
             if(flag) {
-                updateTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+                updateTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
                 updateNum ++;
             }
         }
@@ -159,24 +159,24 @@ std::pair<double, double> testETT(int size) {
             auto t1 = std::chrono::high_resolution_clock::now();
             graph.cut(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
-            updateTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+            updateTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             updateNum ++;
         }
         else if(c == 2) {
             flag = true;
             auto t1 = std::chrono::high_resolution_clock::now();
-            bool connected = graph.conn(a, b)
+            bool connected = graph.conn(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
             results.push_back(connected);
-            queryTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+            queryTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             queryNum ++;
         }
     }
     auto T2 = std::chrono::high_resolution_clock::now();
-    long long runtime = std::chrono::duration_cast<std::chrono::milliseconds>(T2-T1).count();
+    long long runtime = std::chrono::duration_cast<std::chrono::nanoseconds>(T2-T1).count();
     std::cout << "ETT took "
               << runtime
-              << " milliseconds\n";
+              << " nanoseconds\n";
 
     for(auto res: results) {
         if(res) {
@@ -234,7 +234,7 @@ std::pair<double, double> testLCT(int size) {
             graph.link(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
             if(flag) {
-                updateTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+                updateTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
                 updateNum ++;
             }
         }
@@ -243,24 +243,24 @@ std::pair<double, double> testLCT(int size) {
             auto t1 = std::chrono::high_resolution_clock::now();
             graph.cut(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
-            updateTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+            updateTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             updateNum ++;
         }
         else if(c == 2) {
             flag = true;
             auto t1 = std::chrono::high_resolution_clock::now();
-            bool connected = graph.conn(a, b)
+            bool connected = graph.conn(a, b);
             auto t2 = std::chrono::high_resolution_clock::now();
             results.push_back(connected);
-            queryTime += std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+            queryTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             queryNum ++;
         }
     }
     auto T2 = std::chrono::high_resolution_clock::now();
-    long long runtime = std::chrono::duration_cast<std::chrono::milliseconds>(T2-T1).count();
+    long long runtime = std::chrono::duration_cast<std::chrono::nanoseconds>(T2-T1).count();
     std::cout << "LCT took "
               << runtime
-              << " milliseconds\n";
+              << " nanoseconds\n";
 
     for(auto res: results) {
         if(res) {
@@ -272,22 +272,25 @@ std::pair<double, double> testLCT(int size) {
     return std::pair<double, double> (updateTime / (updateNum * 1.0), queryTime / (queryNum * 1.0));;
 }
 
-std::vector<pair<double, double> > testAll(int size) {
+std::vector<std::pair<double, double>> testAll(int size) {
     testUnionFind();
     testSplayTree();
     std::pair<double, double> fd = testFullDynamic(size);
     std::pair<double, double> ett = testETT(size);
     std::pair<double, double> lct = testLCT(size);
     // std::cout << "All tests passed!" << std::endl;
-    return std::vector<pair<long long, long long> >({fd, ett, lct});
+    std::vector<std::pair<double, double>> ret = {fd, ett, lct};
+    return ret;
 }
 
 int main() {
-    std::ofstream timeout("time_all.txt", std::ofstream::out);
+    std::string S;
+    std::cin >> S;
+    std::ofstream timeout("time_all_" + S +".txt", std::ofstream::out);
     int tests[] = {100, 1000, 10000, 100000, 1000000, 5000000};
     for(int testSize: tests) {
-        std::pair<long long, long long> results = testAll(testSize);
-        for(pair<double, double> result: results)
+        std::vector<std::pair<double, double>> results = testAll(testSize);
+        for(std::pair<double, double> result: results)
             timeout<< result.first << ',' << result.second << ',';
         timeout << testSize << '\n';
     }
