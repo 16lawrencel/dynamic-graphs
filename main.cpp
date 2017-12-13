@@ -271,7 +271,7 @@ std::pair<double, double> testLCT(int size) {
     return std::pair<double, double> (updateTime / (updateNum * 1.0), queryTime / (queryNum * 1.0));;
 }
 
-std::vector<pair<double, double>> testAll(int size) {
+std::vector<pair<double, double> > testAll(int size) {
     testUnionFind();
     testSplayTree();
     std::pair<double, double> fd = testFullDynamic(size);
