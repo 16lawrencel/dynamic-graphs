@@ -1,33 +1,44 @@
 #ifndef LinkCutTree_H
 #define LinkCutTree_H
 
-#include <vector>
+#include <unordered_map>
+#include <set>
+
+class LCTNode {
+    public:
+        LCTNode();
+
+        LCTNode * left_child;
+        LCTNode * right_child;
+        LCTNode * parent;
+        int value;
+        int size;
+        bool flip;
+
+        void push(); // lazy propagation
+        void update(); // update values, e.g. subtree size
+
+        void print();
+};
 
 class LinkCutTree {
-    private:
-        std::vector<int> f, c[2], p;
-        bool d(int x);
-        bool r(int x);
-        void push(int x);
-        void rot(int x);
-        void splay(int x);
-        void access(int x);
-        void reroot(int x);
-
     public:
-        int size;
-
-        LinkCutTree(int N) {
-            size = N;
-            f.resize(N + 10, 0);
-            c[0].resize(N + 10, 0);
-            c[1].resize(N + 10, 0);
-            p.resize(N + 10, 0);
-        }
-        // void add(int x);
-        void link(int x, int y);
-        void cut(int x, int y);
+        void add(int x);
+        bool link(int x, int y);
+        bool cut(int x, int y);
         bool conn(int x, int y);
+
+    private:
+        std::unordered_map<int, LCTNode*> node_map;
+
+        LCTNode * get_node(int x);
+        bool is_root(LCTNode * node);
+        void rotate_right(LCTNode * node);
+        void rotate_left(LCTNode * node);
+        void rotate(LCTNode * node);
+        void splay(LCTNode * node);
+        void access(LCTNode * node);
+        void reroot(LCTNode * node);
 };
 
 #endif
