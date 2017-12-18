@@ -153,13 +153,6 @@ void LinkCutTree::access(LCTNode * node) {
     while (node) {
         splay(node);
         node->right_child = last;
-        if (last) {
-            if (last->c_pred == INF) {
-                printf("BAD\n");
-                printf("%d %d\n", last->value, node->value);
-            }
-            assert(last->c_pred != INF);
-        }
         node->c_succ = last ? last->c_pred : INF;
         node->update();
         node = get_front(node);
@@ -193,7 +186,7 @@ void LinkCutTree::add(int x) {
 }
 
 bool LinkCutTree::link(int x, int y) {
-    assert(!conn(x, y));
+    if (conn(x, y)) return false;
     LCTNode * a = get_node(x);
     LCTNode * b = get_node(y);
 
@@ -208,7 +201,7 @@ bool LinkCutTree::link(int x, int y) {
 }
 
 bool LinkCutTree::cut(int x, int y) {
-    assert(conn(x, y));
+    if (!conn(x, y)) return false;
     LCTNode * a = get_node(x);
     LCTNode * b = get_node(y);
 
@@ -218,11 +211,7 @@ bool LinkCutTree::cut(int x, int y) {
     access(b);
     splay(a);
 
-    assert(a->right_child == b);
-    assert(!b->left_child);
-    assert(!b->right_child);
-    assert(!a->flip);
-    assert(!b->flip);
+    if (a->right_child != b) return false;
 
     a->right_child = NULL;
     b->parent = NULL;
@@ -246,45 +235,6 @@ bool LinkCutTree::conn(int x, int y) {
     return a->parent;
 }
 
-void LinkCutTree::set_edge_value(int x, int y, int v) {
-    return;
-    LCTNode * a = get_node(x);
-    LCTNode * b = get_node(y);
-
-    assert(a && b);
-
-    assert(!a->right_child);
-    assert(!b->left_child);
-    assert(!a->flip);
-    assert(!b->flip);
-    a->right_child = b;
-    a->c_succ = v;
-    b->c_pred = v;
-    b->update();
-    a->update();
-
-    access(a);
-
-
-
-    reroot(a);
-    access(b);
-    splay(a);
-
-    assert(is_root(a));
-    assert(!a->left_child);
-    assert(a->right_child == b);
-    assert(!b->left_child);
-    assert(!b->right_child);
-    assert(!a->flip);
-    assert(!b->flip);
-
-    a->c_succ = v;
-    b->c_pred = v;
-    b->update();
-    a->update();
-}
-
 void LinkCutTree::cover(int x, int y, int i) {
     LCTNode * a = get_node(x);
     LCTNode * b = get_node(y);
@@ -297,19 +247,9 @@ void LinkCutTree::cover(int x, int y, int i) {
     assert(is_root(b));
     assert(!b->right_child);
     assert(!a->left_child);
-    assert(a->c_pred == INF);
 
     b->update_cover(i);
     b->push();
-    printf("B: %d %d\n", b->value, b->c_min);
-    printf("PRINTING2\n");
-    print_path(x, y);
-}
-
-int LinkCutTree::dfs_min(LCTNode * x) {
-    if (!x) return INF;
-    x->push();
-    return std::min(std::min(x->c_pred, x->c_succ), std::min(dfs_min(x->left_child), dfs_min(x->right_child)));
 }
 
 int LinkCutTree::get_min(int x, int y) {
@@ -320,9 +260,6 @@ int LinkCutTree::get_min(int x, int y) {
 
     reroot(a);
     access(b);
-
-    //return dfs_min(b);
-
 
     return b->c_min;
 }
@@ -344,11 +281,6 @@ void LinkCutTree::print_path(int x, int y) {
 
     reroot(a);
     access(b);
-    printf("PRINTING\n");
     print_dfs(b);
-    printf("PRINTING\n");
-    access(a);
-
-    print_dfs(a);
 }
 

@@ -27,19 +27,6 @@ class LCTNode {
 };
 
 class LinkCutTree {
-    public:
-        void add(int x);
-        bool link(int x, int y);
-        bool cut(int x, int y);
-        bool conn(int x, int y);
-
-        // these are used for incremental two-edge connectivity
-        void set_edge_value(int x, int y, int v);
-        void cover(int x, int y, int i);
-        int get_min(int x, int y);
-
-        void print_path(int x, int y);
-
     private:
         std::unordered_map<int, LCTNode*> node_map;
 
@@ -52,8 +39,20 @@ class LinkCutTree {
         void access(LCTNode * node);
         void reroot(LCTNode * node);
         LCTNode * get_front(LCTNode * node);
-        int dfs_min(LCTNode * x);
         void print_dfs(LCTNode * node);
+
+    public:
+        void add(int x);
+        bool link(int x, int y);
+        bool cut(int x, int y);
+        bool conn(int x, int y);
+
+        // these are used for incremental two-edge connectivity
+        // and shouldn't be accessed for normal LCT purposes
+        void cover(int x, int y, int i);
+        int get_min(int x, int y);
+
+        void print_path(int x, int y);
 };
 
 #endif

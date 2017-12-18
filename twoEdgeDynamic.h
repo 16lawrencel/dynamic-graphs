@@ -13,15 +13,11 @@
 class TwoEdgeDynamic {
     private:
         std::set<int> nodes;
-        //LinkCutTree lct;
-
-        void init_tree_edge(int x, int y);
-        void cover(int x, int y, int i);
+        LinkCutTree lct;
 
     public:
-        LinkCutTree lct;
         void add(int x);
-        void link(int x, int y);
+        bool link(int x, int y);
         bool two_edge_conn(int x, int y);
 };
 

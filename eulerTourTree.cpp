@@ -82,8 +82,13 @@ void EulerTourTree::shift_to_front(Node * node) {
     SplayTree::splay(node);
 }
 
-void EulerTourTree::link(int x, int y) {
-    if (conn(x, y)) return;
+void EulerTourTree::add(int x) {
+    if (!node_map.count(x)) node_map[x];
+}
+
+bool EulerTourTree::link(int x, int y) {
+    if (!node_map.count(x) || !node_map.count(y)) return false;
+    if (conn(x, y)) return false;
 
     Node * a = get_node(x);
     Node * b = get_node(y);
@@ -117,6 +122,8 @@ void EulerTourTree::link(int x, int y) {
 }
 
 bool EulerTourTree::cut(int x, int y) {
+    if (!node_map.count(x) || !node_map.count(y)) return false;
+
     Node * a = get_edge(x, y);
     if (!a) return false;
 

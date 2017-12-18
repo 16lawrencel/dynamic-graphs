@@ -9,14 +9,16 @@
 // this is also what the original paper did
 
 void FullDynamic::add(int x) {
-    nodes.insert(x);
-
     unsigned int capacity = 1;
     for (unsigned int i = 0; i < ett.size(); i++) capacity <<= 1;
     if (capacity <= nodes.size()) {
         ett.push_back(EulerTourTree());
+        for (int y : nodes) ett.back().add(y);
         adj.push_back(std::unordered_map<int, std::unordered_set<int> >());
     }
+
+    nodes.insert(x);
+    for (auto tree : ett) tree.add(x);
 }
 
 void FullDynamic::add_edge_level(int x, int y, int level, bool ins_adj) {
@@ -57,21 +59,25 @@ int FullDynamic::get_edge_level(int x, int y) {
 /*
    Only allowed to link x and y if x and y already exist
 */
-void FullDynamic::link(int x, int y) {
-    if (!nodes.count(x) || !nodes.count(y)) return;
+bool FullDynamic::link(int x, int y) {
+    if (!nodes.count(x) || !nodes.count(y)) return false;
 
     if (!ett[0].conn(x, y)) {
         ett[0].link(x, y);
         add_edge_level(x, y, 0, false);
     } else add_edge_level(x, y, 0, true);
+
+    return true;
 }
 
-void FullDynamic::cut(int x, int y) {
+bool FullDynamic::cut(int x, int y) {
+    if (!nodes.count(x) || !nodes.count(y)) return false;
+
     int level = get_edge_level(x, y);
     // assert(level == 0);
 
     // (x, y) doesn't exist
-    if (level == -1) return;
+    if (level == -1) return false;
 
     remove_edge_level(x, y);
 
@@ -91,10 +97,8 @@ void FullDynamic::cut(int x, int y) {
         while (!found) {
             int a = ett[i].get_positive_num(x);
 
-            // assert(a == -1);
-
             // looped through all such numbers
-            if (a == -1) return;
+            if (a == -1) break;
 
             assert(!adj[i][a].empty());
 
@@ -120,6 +124,8 @@ void FullDynamic::cut(int x, int y) {
 
         if (found) break;
     }
+
+    return true;
 }
 
 bool FullDynamic::conn(int x, int y) {

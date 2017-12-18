@@ -35,10 +35,13 @@ class EulerTourTree {
         void shift_to_front(Node * node);
 
     public:
-        void link(int x, int y);
+        void add(int x);
+        bool link(int x, int y);
         bool cut(int x, int y);
         bool conn(int x, int y);
 
+        // used for fully dynamic connectivity and shouldn't be used for 
+        // normal purposes
         int get_size(int x);
         int get_positive_num(int x);
         void update_num(int x, int d_num);

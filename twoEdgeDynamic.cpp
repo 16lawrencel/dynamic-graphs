@@ -7,23 +7,16 @@ void TwoEdgeDynamic::add(int x) {
     lct.add(x);
 }
 
-void TwoEdgeDynamic::init_tree_edge(int x, int y) {
-    lct.set_edge_value(x, y, -1);
-}
+bool TwoEdgeDynamic::link(int x, int y) {
+    if (!nodes.count(x) || !nodes.count(y)) return false;
 
-void TwoEdgeDynamic::cover(int x, int y, int i) {
-    lct.cover(x, y, i);
-}
-
-void TwoEdgeDynamic::link(int x, int y) {
     if (!lct.conn(x, y)) {
-        printf("Adding bridge: %d %d\n", x, y);
         lct.link(x, y);
-        init_tree_edge(x, y);
     } else {
-        printf("Covering: %d %d\n", x, y);
-        cover(x, y, 0);
+        lct.cover(x, y, 0);
     }
+
+    return true;
 }
 
 bool TwoEdgeDynamic::two_edge_conn(int x, int y) {
