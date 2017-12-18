@@ -8,7 +8,8 @@
 
 Node::Node() {
     left_child = right_child = parent = NULL;
-    key = value = 0;
+    value = 0;
+    num[0] = sum_num[0] = num[1] = sum_num[1] = 0;
     size = 1;
 }
 
@@ -21,22 +22,22 @@ void Node::print() {
     printf("Node: %d; parent: %d; left child: %d; right child: %d\n", x, p, lc, rc);
 }
 
-
-void Node::push() {
-}
-
 void Node::update() {
     size = 1;
-    max_num = num;
+    sum_num[0] = num[0];
+    sum_num[1] = num[1];
 
     if (left_child) {
         size += left_child->size;
-        max_num = std::max(max_num, left_child->max_num);
+        sum_num[0] += left_child->sum_num[0];
+        sum_num[1] += left_child->sum_num[1];
     }
 
     if (right_child) {
         size += right_child->size;
-        max_num = std::max(max_num, right_child->max_num);
+        sum_num[0] += right_child->sum_num[0];
+        sum_num[1] += right_child->sum_num[1];
+
     }
 }
 
@@ -232,15 +233,15 @@ Node * SplayTree::insert_back(Node * node) {
 */
 Node * SplayTree::find_positive_num(Node * node) {
     splay(node);
-    if (node->max_num <= 0) return NULL;
+    if (node->sum_num <= 0) return NULL;
 
     while (node->num <= 0) {
         Node * left_child = node->left_child;
         Node * right_child = node->right_child;
 
-        if (left_child && left_child->max_num > 0)
+        if (left_child && left_child->sum_num > 0)
             node = left_child;
-        else if (right_child && right_child->max_num > 0)
+        else if (right_child && right_child->sum_num > 0)
             node = right_child;
         else assert(false);
     }

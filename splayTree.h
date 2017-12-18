@@ -8,13 +8,11 @@ class Node {
         Node * left_child;
         Node * right_child;
         Node * parent;
-        int key;
         int value;
         int size;
-        int num; // number of adjacent nodes in graph for fully dynamic
-        int max_num; // max value of num in subtree
+        int num[2]; // number of adjacent nodes in graph for fully dynamic
+        int sum_num[2]; // sum of num in subtree
 
-        void push(); // lazy propagation
         void update(); // update values, e.g. subtree size
 
         void print();

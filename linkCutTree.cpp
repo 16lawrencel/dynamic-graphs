@@ -230,6 +230,8 @@ bool LinkCutTree::conn(int x, int y) {
 
     if (!a || !b) return false;
 
+    if (x == y) return true;
+
     reroot(a);
     access(b);
     return a->parent;

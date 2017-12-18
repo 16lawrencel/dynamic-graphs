@@ -221,10 +221,10 @@ std::pair<double, double> testLCT(int size) {
         }
     }
     auto T1 = std::chrono::high_resolution_clock::now();
-    LinkCutTree graph = LinkCutTree(N);
-    // for(int i = 0; i < N; i++) {
-    //     graph.add(i);
-    // }
+    LinkCutTree graph = LinkCutTree();
+    for(int i = 0; i < N; i++) {
+        graph.add(i);
+    }
     for(uint i = 0; i < commands.size(); i += 3){
         int c = commands[i];
         // add one because 0 isn't a valid node here

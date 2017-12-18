@@ -5,9 +5,11 @@
 #include <unordered_map>
 #include <set>
 #include <utility>
+#include <vector>
 
 class EulerTourTree {
     private:
+        std::unordered_map<int, Node*> repr_map; // representative node for each x
         std::unordered_map<int, std::set<Node*> > node_map;
 
         //https://stackoverflow.com/questions/32685540/c-unordered-map-with-pair-as-key-not-compiling
@@ -23,7 +25,7 @@ class EulerTourTree {
 
         std::unordered_map<std::pair<int, int>, Node*, pair_hash> edge_map;
 
-        std::unordered_map<int, int> num_map;
+        std::unordered_map<int, int> num_map[2];
 
         Node * get_node(int x);
         Node * get_edge(int x, int y);
@@ -42,8 +44,8 @@ class EulerTourTree {
         // used for fully dynamic connectivity and shouldn't be used for 
         // normal purposes
         int get_size(int x);
-        int get_positive_num(int x);
-        void update_num(int x, int d_num);
+        int get_positive_num(int x, bool tree_edge);
+        void update_num(int x, int d_num, bool tree_edge);
 };
 
 #endif

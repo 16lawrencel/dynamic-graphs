@@ -7,14 +7,8 @@
 
 
 Node * EulerTourTree::get_node(int x) {
-    auto it = node_map.find(x);
-
-    // no set related to x
-    if (it == node_map.end()) return NULL;
-
-    auto st = it->second;
-    if (st.empty()) return NULL;
-    return *st.begin();
+    if (!repr_map.count(x)) return NULL;
+    return repr_map[x];
 }
 
 Node * EulerTourTree::get_edge(int x, int y) {
@@ -27,8 +21,11 @@ Node * EulerTourTree::get_edge(int x, int y) {
 void EulerTourTree::add_node(int x, Node * node) {
     SplayTree::splay(node);
     node_map[x].insert(node);
-    node->num = num_map[x];
-    num_map[x] = 0;
+    if (!repr_map.count(x)) {
+        repr_map[x] = node;
+        node->num[0] = num_map[0][x];
+        node->num[1] = num_map[1][x];
+    }
     node->update();
 }
 
@@ -38,16 +35,21 @@ void EulerTourTree::add_edge(int x, int y, Node * node) {
 }
 
 void EulerTourTree::remove_node(int x, Node * node) {
-    SplayTree::splay(node);
-    int num = node->num;
+    int num0 = node->num[0];
+    int num1 = node->num[1];
     node_map[x].erase(node);
-    if (!node_map[x].empty()) {
-        Node * next = *node_map[x].begin();
-        SplayTree::splay(next);
-        // we're bootstrapping num from deleted node
-        next->num += num;
-        next->update();
-    } else num_map[x] += num;
+    if (node == repr_map[x]) {
+        if (node_map[x].empty()) repr_map.erase(x);
+        else {
+            Node * next = *node_map[x].begin();
+            repr_map[x] = next;
+            SplayTree::splay(next);
+            // we're bootstrapping num from deleted node
+            next->num[0] = num0;
+            next->num[1] = num1;
+            next->update();
+        }
+    } else assert(num0 == 0 && num1 == 0);
 }
 
 void EulerTourTree::remove_edge(int x, int y) {
@@ -166,9 +168,11 @@ bool EulerTourTree::cut(int x, int y) {
 }
 
 bool EulerTourTree::conn(int x, int y) {
+    if (x == y) return true;
+
     Node * a = get_node(x);
     Node * b = get_node(y);
-    
+
     if (!a || !b) return false;
 
     SplayTree::splay(a);
@@ -192,22 +196,33 @@ int EulerTourTree::get_size(int x) {
     return a->size / 2 + 1;
 }
 
-int EulerTourTree::get_positive_num(int x) {
+int EulerTourTree::get_positive_num(int x, bool tree_edge) {
     Node * a = get_node(x);
-    if (!a) return num_map[x] > 0 ? x : -1;
-    Node * res = SplayTree::find_positive_num(a);
-    if (!res) return -1;
-    return res->value;
+    if (!a) return num_map[tree_edge][x] > 0 ? x : -1;
+    SplayTree::splay(a);
+    if (a->sum_num[tree_edge] <= 0) return -1;
+
+    while (num_map[tree_edge][a->value] == 0) {
+        Node * left_child = a->left_child;
+        Node * right_child = a->right_child;
+
+        if (left_child && left_child->sum_num[tree_edge] > 0)
+            a = left_child;
+        else if (right_child && right_child->sum_num[tree_edge] > 0)
+            a = right_child;
+        else assert(false);
+    }
+
+    SplayTree::splay(a);
+    return a->value;
 }
 
-void EulerTourTree::update_num(int x, int d_num) {
+void EulerTourTree::update_num(int x, int d_num, bool tree_edge) {
+    num_map[tree_edge][x] += d_num;
     Node * a = get_node(x);
-    if (!a) {
-        num_map[x] += d_num;
-        return;
-    }
+    if (!a) return;
     SplayTree::splay(a);
-    a->num += d_num;
+    a->num[tree_edge] += d_num;
     a->update();
 }
 
