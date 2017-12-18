@@ -35,7 +35,6 @@ class EulerTourTree {
         void shift_to_front(Node * node);
 
     public:
-        void add(int x);
         bool link(int x, int y);
         bool cut(int x, int y);
         bool conn(int x, int y);

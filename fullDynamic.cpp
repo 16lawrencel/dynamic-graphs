@@ -9,16 +9,14 @@
 // this is also what the original paper did
 
 void FullDynamic::add(int x) {
+    nodes.insert(x);
+
     unsigned int capacity = 1;
     for (unsigned int i = 0; i < ett.size(); i++) capacity <<= 1;
     if (capacity <= nodes.size()) {
         ett.push_back(EulerTourTree());
-        for (int y : nodes) ett.back().add(y);
         adj.push_back(std::unordered_map<int, std::unordered_set<int> >());
     }
-
-    nodes.insert(x);
-    for (auto tree : ett) tree.add(x);
 }
 
 void FullDynamic::add_edge_level(int x, int y, int level, bool ins_adj) {
@@ -82,7 +80,7 @@ bool FullDynamic::cut(int x, int y) {
     remove_edge_level(x, y);
 
     // continue only if (x, y) removed
-    if (!ett[level].cut(x, y)) return;
+    if (!ett[level].cut(x, y)) return true;
     for (int i = level - 1; i >= 0; i--) {
         assert(ett[i].cut(x, y));
     }
