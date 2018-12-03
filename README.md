@@ -1,13 +1,15 @@
-# Usage
+# State-of-the-art Dynamic Graph Connectivity Algorithms
+
+## Usage
 To use, include "ds.h".
 Compile with make (although you may have to move some main files first).
 
 We implemented Link Cut Trees, Euler Tour Trees, Fully Dynamic Connectivity, and Incremental Two-Edge Connectivity.
 
-# API
+## API
 The API is fairly simple: first, add nodes by calling add, then call link / cut / connectivity operations.
 
-## Example:
+### Example:
     FullDynamic fd = FullDynamic();
     fd.add(1);
     fd.add(2);
@@ -23,24 +25,24 @@ The API is fairly simple: first, add nodes by calling add, then call link / cut 
 
 Here are the specific APIs and operations supported by each data structure:
 
-## Link Cut Trees
+### Link Cut Trees
 * void add(x)
 * bool link(x, y)
 * bool cut(x, y)
 * bool conn(x, y)
 
-## Euler Tour Trees
+### Euler Tour Trees
 * bool link(x, y)
 * bool cut(x, y)
 * bool conn(x, y)
 
-## Full Dynamic
+### Full Dynamic
 * void add(x)
 * bool link(x, y)
 * bool cut(x, y)
 * bool conn(x, y)
 
-## Incremental Two-edge Connectivity
+### Incremental Two-edge Connectivity
 * void add(x)
 * bool link(x, y)
 * bool two_edge_conn(x, y)
